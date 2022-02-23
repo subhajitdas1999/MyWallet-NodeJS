@@ -1,19 +1,23 @@
-const dotenv = require('dotenv');
-const mongoose = require('mongoose')
-const app = require('./app');
+import '@babel/polyfill';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import app from './app';
 
-dotenv.config({ path:'./config.env'});
 
+dotenv.config({ path: './config.env' });
 
 // for development
-const DB = process.env.DB_LOCAL
+const DB = process.env.DB_LOCAL;
 
 //DB connection
-mongoose.connect(DB).then((connection)=>{
-  console.log("DB connection is successfull");
-}).catch((err)=>{
-  console.log(err)
-})
+mongoose
+  .connect(DB)
+  .then((connection) => {
+    console.log('DB connection is successfull');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 const PORT = process.env.PORT || 3000;
 

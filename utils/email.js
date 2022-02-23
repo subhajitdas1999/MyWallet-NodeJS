@@ -1,7 +1,6 @@
-const dotenv = require('dotenv');
-const pug = require('pug');
-const nodemailer = require('nodemailer');
-const htmlToText = require('html-to-text');
+import dotenv from 'dotenv';
+import pug from 'pug';
+import nodemailer from 'nodemailer'
 
 dotenv.config({ path: '../config.env' });
 
@@ -67,9 +66,9 @@ class Email {
   }
 
   //Txfail message
-  async sendfail(recieverName) {
-    await this.send('txfail', 'Transaction is Unsuccessful', { recieverName });
+  async sendTxfail(txdetails) {
+    await this.send('txfail', 'Transaction is Unsuccessful', txdetails);
   }
 }
 
-module.exports = Email;
+export default Email;

@@ -1,26 +1,27 @@
-const express = require('express');
-const authController = require('../controllers/authController');
-const userController = require('../controllers/userController');
+import express from 'express';
+import { signup,login,logout,protect,restrictTo } from '../controllers/authController';
+import { getAllUsers,getUser,createUser } from '../controllers/userController';
+// const userController = require('../controllers/userController');
 
 const userRouter = express.Router();
 
 //---------------Authentication Part------------------------
-userRouter.post('/signup', authController.signup);
-userRouter.post('/login', authController.login);
-userRouter.post('/logout', authController.logout);
+userRouter.post('/signup', signup);
+userRouter.post('/login', login);
+userRouter.post('/logout', logout);
 //---------------------------------------------------------
 
 //All below routes needs user to be logged in
-userRouter.use(authController.protect);
+userRouter.use(protect);
 
 //only admin can access this routes
-userRouter.use(authController.restrictTo('admin'));
+userRouter.use(restrictTo('admin'));
 
 userRouter
   .route('/')
-  .get(userController.getAllUsers)
-  .post(userController.createUser, authController.signup);
+  .get(getAllUsers)
+  .post(createUser, signup);
 
-userRouter.get('/:id', userController.getUser);
+userRouter.get('/:id', getUser);
 
-module.exports = userRouter;
+export default userRouter;

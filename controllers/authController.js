@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
-const dotenv = require('dotenv');
-const User = require('../model/userModel');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
-const Email = require('../utils/email');
+import jwt from 'jsonwebtoken';
+import {promisify} from 'util'
+import dotenv from 'dotenv';
+import User from '../model/userModel';
+import AppError from '../utils/appError';
+import catchAsync from '../utils/catchAsync';
+import Email from '../utils/email';
 
 dotenv.config({ path: '../config.env' });
 
@@ -14,7 +14,7 @@ const getToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-exports.signup = catchAsync(async (req, res, next) => {
+export const signup = catchAsync(async (req, res, next) => {
   const newUserData = { ...req.body };
   //if user is not ceated by admins then exclude this fields
   //as a normal user can manipulate this data
@@ -40,7 +40,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   // 1) check email and password is present
@@ -66,13 +66,13 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.logout = (req, res, next) => {
+export const logout = (req, res, next) => {
   res.status(200).json({
     status: 'success',
   });
 };
 
-exports.protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
@@ -112,7 +112,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 //restrict users based on their roles
 
-exports.restrictTo =
+export const restrictTo =
   (...roles) =>
   (req, res, next) => {
     if (!roles.includes(req.user.role)) {

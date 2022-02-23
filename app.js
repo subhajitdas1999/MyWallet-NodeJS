@@ -1,8 +1,7 @@
-const express = require('express');
-const globalErrorHandler = require('./controllers/globalErrorHandler');
-const userRouter = require('./routes/userRoutes')
-const txRouter = require('./routes/txRoutes')
-
+import express from 'express';
+import globalErrorHandler from './controllers/globalErrorHandler';
+import userRouter from './routes/userRoutes';
+import txRouter from './routes/txRoutes'
 const app = express();
 
 app.use(express.json());

@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from "mongoose";
 const txSchema = new mongoose.Schema({
   from: {
     type: mongoose.Schema.ObjectId,
@@ -29,4 +28,4 @@ const txSchema = new mongoose.Schema({
 
 const Transaction = mongoose.model('Transaction', txSchema);
 
-module.exports = Transaction;
+export default Transaction;

@@ -1,10 +1,11 @@
-const Transaction = require('../model/txModel');
-const User = require('../model/userModel');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
-const Email = require('../utils/email');
+import Transaction from "../model/txModel";
+import User from "../model/userModel";
+import AppError from "../utils/appError";
+import catchAsync from "../utils/catchAsync";
+import Email from "../utils/email";
 
-exports.create = catchAsync(async (req, res, next) => {
+
+export const createTx = catchAsync(async (req, res, next) => {
   //we got the req.user from protected route adding sender id to req.body
   req.body.from = req.user._id;
 
@@ -35,7 +36,6 @@ exports.create = catchAsync(async (req, res, next) => {
     beforeTx: reciever.accountBalance,
     afterTx: reciever.accountBalance + req.body.amount,
   };
-
   try {
     // 5) update sender balance
     const sender = await User.findByIdAndUpdate(
@@ -46,26 +46,25 @@ exports.create = catchAsync(async (req, res, next) => {
         runValidators: true,
       }
     );
-    // 6) update reciever balance
-    await User.findByIdAndUpdate(
+    // 6) update reciever balance and reiever
+    const updatedReciever = await User.findByIdAndUpdate(
       reciever._id,
       { accountBalance: recieverBalance.afterTx },
       {
         runValidators: true,
       }
     );
-
     //7) save the tx details
     const tx = await Transaction.create(req.body);
 
     //send success email to sender
     await new Email(sender).sendTxSuccess({
-      coinRecieverName: reciever.name,
+      coinRecieverName: updatedReciever.name,
       sendToSender: true,
     });
 
     // send success email to reciever
-    await new Email(reciever).sendTxSuccess({
+    await new Email(updatedReciever).sendTxSuccess({
       coinSenderName: sender.name,
       amount: req.body.amount,
     });
@@ -89,16 +88,20 @@ exports.create = catchAsync(async (req, res, next) => {
 
     // 2) update reciever balance
 
-    await User.findByIdAndUpdate(
+    const updatedReciever = await User.findByIdAndUpdate(
       reciever._id,
       { accountBalance: recieverBalance.beforeTx },
       {
+        new:true,
         runValidators: true,
       }
     );
 
     //send fail email to sender
-    await new Email(sender).sendTxSuccess(reciever.name);
+    await new Email(sender).sendTxfail({
+      coinRecieverName: updatedReciever.name,
+      amount: req.body.amount,
+    });
 
     res.status(500).json({
       status: 'fail',
@@ -107,7 +110,7 @@ exports.create = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.myTransaction = catchAsync(async (req, res, next) => {
+export const myTransaction = catchAsync(async (req, res, next) => {
   //get all the transaction where from or to filed matched to the user id
   const txs = await Transaction.find({
     $or: [{ from: req.user._id }, { to: req.user._id }],
@@ -121,7 +124,7 @@ exports.myTransaction = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllTransactions = catchAsync(async (req, res, next) => {
+export const getAllTransactions = catchAsync(async (req, res, next) => {
   const txs = await Transaction.find();
   res.status(200).json({
     status: 'success',
@@ -132,7 +135,7 @@ exports.getAllTransactions = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getTransaction = catchAsync(async (req, res, next) => {
+export const getTransaction = catchAsync(async (req, res, next) => {
   const tx = await Transaction.findById(req.params.id)
     .populate({ path: 'from' })
     .populate('to');

@@ -1,18 +1,18 @@
-const express = require('express');
-const txController = require('../controllers/txController');
-const authController = require('../controllers/authController');
+import express from 'express';
+import { createTx,myTransaction,getAllTransactions,getTransaction } from '../controllers/txController';
+import { restrictTo,protect } from '../controllers/authController';
 
 const txRouter = express.Router();
 
 //Only logged in user can access transactions
-txRouter.use(authController.protect)
-txRouter.get('/myTransaction',txController.myTransaction)
-txRouter.post('/create',txController.create)
+txRouter.use(protect)
+txRouter.get('/myTransaction',myTransaction)
+txRouter.post('/create',createTx)
 
 //restricted to admin
-txRouter.use(authController.restrictTo('admin'))
+txRouter.use(restrictTo('admin'))
 
-txRouter.get('/',txController.getAllTransactions)
-txRouter.get('/:id',txController.getTransaction)
+txRouter.get('/',getAllTransactions)
+txRouter.get('/:id',getTransaction)
 
-module.exports = txRouter;
+export default txRouter;
