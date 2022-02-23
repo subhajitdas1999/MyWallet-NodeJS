@@ -8,9 +8,9 @@ dotenv.config({ path: '../config.env' });
 class Email {
   constructor(user) {
     this.to = user.email;
-    this.form = process.env.EMAIL_FROM;
     this.userName = user.name;
     this.accountBalance = user.accountBalance;
+    this.role = user.role;
   }
 
   //create and return a nodemailer transport
@@ -25,21 +25,21 @@ class Email {
   }
 
   //send the email
-  async send(template, subject,otherDetails={}) {
+  async send(template, subject, txDetails = {}) {
     // 1) Render HTML based on pug template
     const html = pug.renderFile(
       `${__dirname}/../emailTemplates/${template}.pug`,
       {
         name: this.userName,
-        accountBalance:this.accountBalance,
+        role: this.role,
+        accountBalance: this.accountBalance,
         subject,
-        otherDetails
-        
+        txDetails,
       }
     );
     // define mail options
     const mailoptions = {
-      from: `"MyWallet" <${this.form}>`,
+      from: `"MyWallet" <${process.env.EMAIL_FROM}>`,
       to: this.to,
       html,
       subject,
@@ -57,13 +57,18 @@ class Email {
   }
 
   //Txsuccess message
-  async sendTxSuccess(recieverName){
-    await this.send('txSuccess', 'Transaction is successful',{recieverName});
+  async sendTxSuccess(txdetails) {
+    if (txdetails.sendToSender) {
+      await this.send('txSuccess', 'Transaction is successful',  txdetails );
+    } else {
+      await this.send('txSuccess', 'Transaction is Recieved',  txdetails );
+
+    }
   }
 
   //Txfail message
-  async sendfail(recieverName){
-    await this.send('txfail', 'Transaction is Unsuccessful',{recieverName});
+  async sendfail(recieverName) {
+    await this.send('txfail', 'Transaction is Unsuccessful', { recieverName });
   }
 }
 

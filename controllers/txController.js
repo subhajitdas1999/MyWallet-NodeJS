@@ -59,7 +59,18 @@ exports.create = catchAsync(async (req, res, next) => {
     const tx = await Transaction.create(req.body);
 
     //send success email to sender
-    await new Email(sender).sendTxSuccess(reciever.name);
+    await new Email(sender).sendTxSuccess({
+      coinRecieverName: reciever.name,
+      sendToSender: true,
+    });
+
+    // send success email to reciever
+    await new Email(reciever).sendTxSuccess({
+      coinSenderName: sender.name,
+      amount: req.body.amount,
+    });
+    // await new Email(sender).sendTxSuccess(sender.name);
+
     res.status(201).json({
       status: 'success',
       tx,
@@ -122,9 +133,11 @@ exports.getAllTransactions = catchAsync(async (req, res, next) => {
 });
 
 exports.getTransaction = catchAsync(async (req, res, next) => {
-  const tx = await Transaction.findById(req.params.id).populate({path:'from'}).populate('to');
-  if(!tx){
-    return next(new AppError(404,'No data found!!'))
+  const tx = await Transaction.findById(req.params.id)
+    .populate({ path: 'from' })
+    .populate('to');
+  if (!tx) {
+    return next(new AppError(404, 'No data found!!'));
   }
   res.status(200).json({
     status: 'success',

@@ -8,6 +8,7 @@ const Email = require('../utils/email');
 
 dotenv.config({ path: '../config.env' });
 
+//get the JWT token
 const getToken = (id) =>
   jwt.sign({ id: id }, process.env.JWT_SECRET_TOKEN, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -22,6 +23,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   //if this is regular signup then exclude the above fields
   //or if user is created by admin then bypass it
   //this is comming from createUser middleware in userRoute
+
   if (!req.createUserByAdmin) {
     excludedFields.forEach((el) => delete newUserData[el]);
   }
@@ -87,12 +89,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   //get the payload data(id) which we have provided during token creation
-  //token expiration error comes from here 
+  //token expiration error comes from here
   const decoded = await promisify(jwt.verify)(
     token,
     process.env.JWT_SECRET_TOKEN
   );
-
 
   //get the current user
   const currentUser = await User.findById(decoded.id);
