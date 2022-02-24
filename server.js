@@ -6,8 +6,11 @@ import app from './app';
 
 dotenv.config({ path: './config.env' });
 
-// for development
-const DB = process.env.DB_LOCAL;
+//cloud DB collection
+const DB = process.env.DB_CLOUD.replace('<PASSWORD>',process.env.DB_PASSWORD)
+
+// Local DB connection
+// const DB = process.env.DB_LOCAL;
 
 //DB connection
 mongoose

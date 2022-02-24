@@ -28,9 +28,14 @@ export const signup = catchAsync(async (req, res, next) => {
     excludedFields.forEach((el) => delete newUserData[el]);
   }
 
+  //create new user
   const user = await User.create(newUserData);
+  //create the JWT token based on new user id
   const token = getToken(user._id);
+
+  //send the sign up mail
   await new Email(user).sendWelcome();
+  //send responce
   res.status(201).json({
     status: 'success',
     token,
@@ -56,7 +61,9 @@ export const login = catchAsync(async (req, res, next) => {
     return next(new AppError(401, 'provide correct email and password'));
   }
 
+  //get the token
   const token = getToken(user._id);
+  //send the responce
   res.status(201).json({
     status: 'success',
     token,
@@ -67,12 +74,15 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const logout = (req, res, next) => {
+  //we are not sending the token 
+  //so user will be automatically unauthorized
   res.status(200).json({
     status: 'success',
   });
 };
 
 export const protect = catchAsync(async (req, res, next) => {
+  //get the token from req headers filed
   let token;
   if (
     req.headers.authorization &&
@@ -98,20 +108,20 @@ export const protect = catchAsync(async (req, res, next) => {
   //get the current user
   const currentUser = await User.findById(decoded.id);
 
+  //if user not exist
   if (!currentUser) {
     return next(
       new AppError(401, 'The token belong to the user does not exist')
     );
   }
   //if we come up to this point .it means user is logged in correctly
-  //so we are adding the the user in req
-
+  //so we are adding the the user in req so that next middleware can use it
   req.user = currentUser;
   next();
 });
 
 //restrict users based on their roles
-
+//if user role is not roles then return error
 export const restrictTo =
   (...roles) =>
   (req, res, next) => {

@@ -1,9 +1,8 @@
-import Transaction from "../model/txModel";
-import User from "../model/userModel";
-import AppError from "../utils/appError";
-import catchAsync from "../utils/catchAsync";
-import Email from "../utils/email";
-
+import Transaction from '../model/txModel';
+import User from '../model/userModel';
+import AppError from '../utils/appError';
+import catchAsync from '../utils/catchAsync';
+import Email from '../utils/email';
 
 export const createTx = catchAsync(async (req, res, next) => {
   //we got the req.user from protected route adding sender id to req.body
@@ -51,6 +50,7 @@ export const createTx = catchAsync(async (req, res, next) => {
       reciever._id,
       { accountBalance: recieverBalance.afterTx },
       {
+        new: true,
         runValidators: true,
       }
     );
@@ -68,14 +68,15 @@ export const createTx = catchAsync(async (req, res, next) => {
       coinSenderName: sender.name,
       amount: req.body.amount,
     });
-    // await new Email(sender).sendTxSuccess(sender.name);
 
+    //send the responce
     res.status(201).json({
       status: 'success',
       tx,
     });
   } catch (err) {
     //in case of error back to the previous state
+
     // 1) update sender balance
     const sender = await User.findByIdAndUpdate(
       req.user._id,
@@ -87,12 +88,11 @@ export const createTx = catchAsync(async (req, res, next) => {
     );
 
     // 2) update reciever balance
-
     const updatedReciever = await User.findByIdAndUpdate(
       reciever._id,
       { accountBalance: recieverBalance.beforeTx },
       {
-        new:true,
+        new: true,
         runValidators: true,
       }
     );
@@ -103,6 +103,7 @@ export const createTx = catchAsync(async (req, res, next) => {
       amount: req.body.amount,
     });
 
+    //send responce
     res.status(500).json({
       status: 'fail',
       message: 'Transaction error. please try again.',
@@ -115,6 +116,8 @@ export const myTransaction = catchAsync(async (req, res, next) => {
   const txs = await Transaction.find({
     $or: [{ from: req.user._id }, { to: req.user._id }],
   });
+
+  //send the responce
   res.status(200).json({
     status: 'success',
     result: txs.length,
@@ -125,7 +128,10 @@ export const myTransaction = catchAsync(async (req, res, next) => {
 });
 
 export const getAllTransactions = catchAsync(async (req, res, next) => {
+  //get all the transactions
   const txs = await Transaction.find();
+
+  //send the responce
   res.status(200).json({
     status: 'success',
     result: txs.length,
@@ -136,12 +142,17 @@ export const getAllTransactions = catchAsync(async (req, res, next) => {
 });
 
 export const getTransaction = catchAsync(async (req, res, next) => {
+  //get a Transaction based on the id
   const tx = await Transaction.findById(req.params.id)
     .populate({ path: 'from' })
     .populate('to');
+
+  //if no transaction is found return error
   if (!tx) {
     return next(new AppError(404, 'No data found!!'));
   }
+
+  //if every thing is ok send responce
   res.status(200).json({
     status: 'success',
     data: {
