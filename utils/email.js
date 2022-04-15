@@ -8,7 +8,6 @@ class Email {
   constructor(user) {
     this.to = user.email;
     this.userName = user.name;
-    this.accountBalance = user.accountBalance;
     this.role = user.role;
   }
 
@@ -31,7 +30,6 @@ class Email {
       {
         name: this.userName,
         role: this.role,
-        accountBalance: this.accountBalance,
         subject,
         txDetails,
       }
