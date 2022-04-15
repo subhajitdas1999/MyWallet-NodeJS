@@ -1,18 +1,21 @@
 import mongoose from "mongoose";
 const txSchema = new mongoose.Schema({
   from: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
     ref: 'User',
     required: [true, 'Transaction sender is required'],
   },
   to: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
     ref: 'User',
     required: [true, 'Transaction reciever is required'],
   },
-  amount: {
-    type: Number,
+  TokenAmount: {
+    type: String,
     required: [true, 'transaction amount is required'],
+  },
+  TransactionHash:{
+    type: String,
   },
   createdAt: {
     type: Date,

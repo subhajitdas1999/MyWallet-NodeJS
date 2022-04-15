@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -14,11 +13,6 @@ const userSchema = new mongoose.Schema({
     unique: [true, 'Email is exist already'],
     //validate
     validate: [validator.isEmail, 'Provide correct email address'],
-  },
-  accountBalance:{
-    type:Number,
-    default:100,
-    min:[0,'balance cannot be negative']
   },
   role: {
     type: String,
@@ -45,6 +39,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  address: {
+    type: String,
+    required: [true, 'Please provide account address'],
+  },
+  TransactionHash: {
+    type: String,
+  },
 });
 
 //document middleware
@@ -57,7 +58,6 @@ userSchema.pre('save', async function (next) {
   //async function we dont need next()
   // next();
 });
-
 
 //instance method on user collection
 userSchema.methods.correctPassword = async function (
