@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import {promisify} from 'util'
+import { promisify } from 'util';
 import dotenv from 'dotenv';
+import sendTokens from './sendTokens';
 import User from '../model/userModel';
 import AppError from '../utils/appError';
 import catchAsync from '../utils/catchAsync';
@@ -28,8 +29,17 @@ export const signup = catchAsync(async (req, res, next) => {
     excludedFields.forEach((el) => delete newUserData[el]);
   }
 
-  //create new user
-  const user = await User.create(newUserData);
+  let user;
+  try {
+    const tx = await sendTokens(null,newUserData.address, '100');
+    newUserData['TransactionHash'] = tx.hash;
+    // newUserData["Account"] = 
+    console.log(newUserData);
+    user = await User.create(newUserData);
+  } catch (err) {
+    next(err);
+  }
+
   //create the JWT token based on new user id
   const token = getToken(user._id);
 
@@ -74,7 +84,7 @@ export const login = catchAsync(async (req, res, next) => {
 });
 
 export const logout = (req, res, next) => {
-  //we are not sending the token 
+  //we are not sending the token
   //so user will be automatically unauthorized
   res.status(200).json({
     status: 'success',
@@ -117,6 +127,7 @@ export const protect = catchAsync(async (req, res, next) => {
   //if we come up to this point .it means user is logged in correctly
   //so we are adding the the user in req so that next middleware can use it
   req.user = currentUser;
+  console.log(currentUser);
   next();
 });
 
