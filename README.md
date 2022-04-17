@@ -15,4 +15,6 @@ For more details visit this API documentation [URL](https://documenter.getpostma
 
 # To test locally 
 
+fill all the env details in config.env file . see the config.env.example file for that.
+
 open the DB Local and comment the cloud db connection in server.js file
